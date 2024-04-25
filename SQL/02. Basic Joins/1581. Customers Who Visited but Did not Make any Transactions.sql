@@ -1,3 +1,4 @@
+# Diffifculty: EASY
 # Problem:
 
 Table: Visits
