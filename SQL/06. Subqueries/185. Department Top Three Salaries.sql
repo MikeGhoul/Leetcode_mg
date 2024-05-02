@@ -1,23 +1,38 @@
-# Diffifculty: EASY
+# Diffifculty: HARD
 # Problem:
 
-Table: Employees
+Table: Employee
 
-+-------------+----------+
-| Column Name | Type     |
-+-------------+----------+
-| employee_id | int      |
-| name        | varchar  |
-| manager_id  | int      |
-| salary      | int      |
-+-------------+----------+
-In SQL, employee_id is the primary key for this table.
-This table contains information about the employees, their salary, and the ID of their manager. Some employees do not have a manager (manager_id is null). 
++--------------+---------+
+| Column Name  | Type    |
++--------------+---------+
+| id           | int     |
+| name         | varchar |
+| salary       | int     |
+| departmentId | int     |
++--------------+---------+
+id is the primary key (column with unique values) for this table.
+departmentId is a foreign key (reference column) of the ID from the Department table.
+Each row of this table indicates the ID, name, and salary of an employee. It also contains the ID of their department.
  
 
-Find the IDs of the employees whose salary is strictly less than $30000 and whose manager left the company. When a manager leaves the company, their information is deleted from the Employees table, but the reports still have their manager_id set to the manager that left.
+Table: Department
 
-Return the result table ordered by employee_id.
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| id          | int     |
+| name        | varchar |
++-------------+---------+
+id is the primary key (column with unique values) for this table.
+Each row of this table indicates the ID of a department and its name.
+ 
+
+A company's executives are interested in seeing who earns the most money in each of the company's departments. A high earner in a department is an employee who has a salary in the top three unique salaries for that department.
+
+Write a solution to find the employees who are high earners in each of the departments.
+
+Return the result table in any order.
 
 The result format is in the following example.
 
@@ -25,42 +40,73 @@ The result format is in the following example.
 
 Example 1:
 
-Input:  
-Employees table:
-+-------------+-----------+------------+--------+
-| employee_id | name      | manager_id | salary |
-+-------------+-----------+------------+--------+
-| 3           | Mila      | 9          | 60301  |
-| 12          | Antonella | null       | 31000  |
-| 13          | Emery     | null       | 67084  |
-| 1           | Kalel     | 11         | 21241  |
-| 9           | Mikaela   | null       | 50937  |
-| 11          | Joziah    | 6          | 28485  |
-+-------------+-----------+------------+--------+
+Input: 
+Employee table:
++----+-------+--------+--------------+
+| id | name  | salary | departmentId |
++----+-------+--------+--------------+
+| 1  | Joe   | 85000  | 1            |
+| 2  | Henry | 80000  | 2            |
+| 3  | Sam   | 60000  | 2            |
+| 4  | Max   | 90000  | 1            |
+| 5  | Janet | 69000  | 1            |
+| 6  | Randy | 85000  | 1            |
+| 7  | Will  | 70000  | 1            |
++----+-------+--------+--------------+
+Department table:
++----+-------+
+| id | name  |
++----+-------+
+| 1  | IT    |
+| 2  | Sales |
++----+-------+
 Output: 
-+-------------+
-| employee_id |
-+-------------+
-| 11          |
-+-------------+
-
++------------+----------+--------+
+| Department | Employee | Salary |
++------------+----------+--------+
+| IT         | Max      | 90000  |
+| IT         | Joe      | 85000  |
+| IT         | Randy    | 85000  |
+| IT         | Will     | 70000  |
+| Sales      | Henry    | 80000  |
+| Sales      | Sam      | 60000  |
++------------+----------+--------+
 Explanation: 
-The employees with a salary less than $30000 are 1 (Kalel) and 11 (Joziah).
-Kalel's manager is employee 11, who is still in the company (Joziah).
-Joziah's manager is employee 6, who left the company because there is no row for employee 6 as it was deleted.
+In the IT department:
+- Max earns the highest unique salary
+- Both Randy and Joe earn the second-highest unique salary
+- Will earns the third-highest unique salary
 
+In the Sales department:
+- Henry earns the highest salary
+- Sam earns the second-highest salary
+- There is no third-highest salary as there are only two employees
 
 
 # Solution:
 
+WITH ranked_data AS (
 SELECT
-employee_id
-FROM Employees
-WHERE manager_id NOT IN (SELECT employee_id FROM Employees) 
-AND salary < 30000
-ORDER BY 1
+department.name AS Department
+, employee.name AS Employee
+, employee.salary AS Salary
+, DENSE_RANK() OVER (PARTITION BY department.name ORDER BY employee.salary DESC) AS ranked_salary
+FROM employee
+LEFT JOIN department
+ON employee.departmentId = department.id
+ORDER BY 1, 4
+)
 
-# Create a subquery where the manager_id is not in the employee_id field since they have left
-# Add a filter for salary and order the results
+SELECT 
+Department
+, Employee
+, Salary
+FROM ranked_data
+WHERE ranked_salary < 4
+
+# Create a CTE with ranked data as another column
+# Select from newly created table where the salary ranking is less than 4 to return the top 3
+
+
 
 
