@@ -1,4 +1,4 @@
-# Company:  
+# Difficulty: EASY 
 # Problem:
 
 

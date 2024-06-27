@@ -1,4 +1,4 @@
-# Company: 
+# Difficulty: MEDIUM 
 # Problem:
 
 You are working with the sales team of an e-commerce store to analyze their monthly performance.
