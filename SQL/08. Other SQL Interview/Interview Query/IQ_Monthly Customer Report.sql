@@ -1,4 +1,4 @@
-# Company: 
+# Difficulty: MEDIUM
 # Problem:
 
 Write a query to show the number of users, number of transactions placed, and total order amount per month in the year 2020. Assume that we are only interested in the monthly reports for a single year (January-December).

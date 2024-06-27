@@ -1,4 +1,5 @@
 # Company: Meta 
+# Difficulty: MEDIUM
 # Problem:
 
 Given a employees and departments table, select the top 3 departments with at least ten employees and rank them according to the percentage of their employees making over 100K in salary.
@@ -42,4 +43,5 @@ ON employees.department_id = departments.id
 GROUP BY department_id
 HAVING number_of_employees >= 10
 ORDER BY percentage_over_100k
+LIMIT 3
 
