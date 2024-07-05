@@ -66,4 +66,33 @@ ROUND(SUM(temp) / COUNT(DISTINCT player_id), 2) AS fraction
 FROM players
 
 
+# Other option using 2 CTEs:
+-- Keep row level data and calc number of days between logins
+-- Get the row number of each event ordered by date
+-- Second CTE will pull instances where the criteria we want is met: 1 day from prev login and has to be on the second login
+-- We count the number of player_ids where this criteria is met
+-- Take that count and divide by total number of players from the Activity table
+
+WITH login_dates AS(
+SELECT
+player_id
+, event_date
+, DATEDIFF(event_date, LAG(event_date) OVER (PARTITION BY player_id ORDER BY event_date)) AS days_from_prev
+, ROW_NUMBER() OVER (PARTITION BY player_id ORDER BY event_date) AS login_instance
+FROM Activity
+),
+
+player_agg AS(
+SELECT
+COUNT(DISTINCT player_id) AS consecutive_players
+FROM login_dates
+WHERE days_from_prev = 1
+AND login_instance = 2
+)
+
+SELECT
+ROUND(consecutive_players / (SELECT COUNT(DISTINCT(player_id)) FROM Activity), 2) AS fraction
+FROM player_agg
+
+
 

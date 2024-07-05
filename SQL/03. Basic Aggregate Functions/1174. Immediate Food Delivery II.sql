@@ -75,7 +75,35 @@ LEFT JOIN Delivery
 ON first_order.customer_id = Delivery.customer_id
 
 
--- Solution not using cte (simpler):
+
+
+# CTE + Window function to get the first instance of each customer order:
+-- Create a column to determine if an order is immediate or scheduled
+-- Create a ranked column that takes the first order by customer_id
+-- Select from CTE where conditions are met: first order and order is immediate
+-- Divide by total number of distinct customers
+
+WITH ranked_order AS (
+SELECT
+delivery_id
+, customer_id
+, order_date
+, customer_pref_delivery_date
+, CASE WHEN order_date = customer_pref_delivery_date THEN 'immediate' ELSE 'scheduled' END AS cust_pref_type
+, ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY order_date) AS cust_order
+FROM Delivery
+ORDER BY customer_id, order_date
+)
+
+SELECT
+ROUND((SUM(CASE WHEN cust_pref_type = 'immediate' THEN 1 ELSE 0 END) / COUNT(DISTINCT(customer_id))) * 100, 2) AS immediate_percentage
+FROM ranked_order
+WHERE cust_order = 1
+
+
+
+
+# Solution not using cte (simpler):
 
 SELECT
 -- ROUND(SUM(CASE WHEN order_date = customer_pref_delivery_date THEN 1 ELSE 0 END) * 100/ COUNT(DISTINCT customer_id), 2)  AS immediate_percentage

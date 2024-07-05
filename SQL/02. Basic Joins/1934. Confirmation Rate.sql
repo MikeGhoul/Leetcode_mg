@@ -79,7 +79,7 @@ User 2 made 2 requests where one was confirmed and the other timed out. The conf
 
 # Solution:
 
--- I prefer using the second option but leetcode wouldn't let me use CASE WHEN
+-- I prefer using the second option
 
 # option 1:
 SELECT
@@ -94,8 +94,8 @@ GROUP BY 1
 # option 2:
 SELECT
 Signups.user_id
-, ROUND(NULLIF(SUM(CASE WHEN Confirmations.action='confirmed' THEN 1 ELSE 0) / COUNT(Confirmations.action), 2), 0) AS confirmation_rate
+, ROUND(COALESCE(SUM(CASE WHEN action = 'confirmed' THEN 1 ELSE 0 END) / COUNT(*), 0), 2) AS confirmation_rate
 FROM Signups
 LEFT JOIN Confirmations
 ON Signups.user_id = Confirmations.user_id
-GROUP BY 1
+GROUP BY Signups.user_id

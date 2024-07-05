@@ -84,3 +84,37 @@ WHERE a.activity_type = 'start'
 AND b.activity_type = 'end'
 GROUP BY 1
 ORDER BY 1
+
+
+# Using CTEs and Window Functions:
+
+-- Take the current timestamp minus the previous timestamp
+-- Partition by machine and process to keep them unique
+-- Order by activity_type: take the end timestamp minus the start for each grouped pair
+-- NOTE: Since activity_type is ENUM, 'start' comes before 'end' which explains the order showing start first
+-- Take the second instance for each group pair which is the time_spent for each
+-- Take the avg per machine_id
+
+WITH time_per AS (
+SELECT
+machine_id
+, process_id
+, timestamp - LAG(timestamp) OVER (PARTITION BY machine_id, process_id ORDER BY activity_type) AS time_spent
+, ROW_NUMBER() OVER () AS row_num
+FROM Activity
+),
+
+process_per AS (
+SELECT
+machine_id
+, process_id
+, time_spent
+FROM time_per
+WHERE row_num % 2 = 0
+)
+
+SELECT
+machine_id
+, ROUND(AVG(time_spent), 3) AS processing_time
+FROM process_per
+GROUP BY machine_id
