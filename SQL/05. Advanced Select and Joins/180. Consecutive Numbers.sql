@@ -111,3 +111,42 @@ id num  id num  id num
 -- ---  -- ---  -- ---
 1  1    2  1    3  1   <- Consecutive sequence found for num = 1
 
+
+
+# Solution 3 with CTE and window function - passes all test cases:
+WITH lead_lag AS (
+SELECT
+id
+, num
+, LEAD(num, 1) OVER (ORDER BY id) AS next_val
+, LEAD(num, 2) OVER (ORDER BY id) AS next_next_val
+, LEAD(id, 1) OVER(ORDER BY id) AS id1
+, LEAD(id, 2) OVER(ORDER BY id) AS id2
+FROM Logs
+)
+
+SELECT
+DISTINCT(num) AS ConsecutiveNums
+FROM lead_lag
+WHERE next_val = num  AND num = next_next_val
+AND id1 = id +1 AND id2 = id1 + 1
+
+
+
+# Solution 4 (same as above but using LAG and LEAD) - clearer to me
+WITH lead_lag AS (
+SELECT
+id
+, num
+, LEAD(num) OVER (ORDER BY id) AS next_val
+, LAG(num) OVER (ORDER BY id) AS prev_val
+, LEAD(id) OVER(ORDER BY id) AS next_id
+, LAG(id) OVER(ORDER BY id) AS prev_id
+FROM Logs
+)
+
+SELECT
+DISTINCT(num) AS ConsecutiveNums
+FROM lead_lag
+WHERE next_val = num  AND num = prev_val
+AND next_id = id +1 AND prev_id = id - 1

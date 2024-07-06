@@ -71,3 +71,20 @@ customer_id
 FROM Customer
 GROUP BY 1
 HAVING COUNT(DISTINCT product_key) = (SELECT COUNT(product_key) FROM Product)
+
+
+
+# Using CTE:
+WITH cust_prod_counts AS (
+SELECT
+customer_id
+, COUNT(DISTINCT product_key) AS product_counts
+FROM Customer
+GROUP BY customer_id
+)
+
+SELECT 
+customer_id
+FROM cust_prod_counts
+WHERE product_counts = (SELECT COUNT(DISTINCT product_key) FROM Product)
+

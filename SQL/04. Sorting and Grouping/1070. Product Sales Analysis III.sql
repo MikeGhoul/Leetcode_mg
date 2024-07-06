@@ -80,3 +80,29 @@ FROM Sales
 WHERE (product_id , year) IN (SELECT product_id, min(year) FROM Sales GROUP BY product_id)
 
 -- WHERE year IN (SELECT min(year) FROM Sales GROUP BY product_id)
+
+
+# Using CTE:
+-- Note there was an issue on some of the test cases using row_number() instead
+-- of DENSE_RANK() and that might mean there are instances where products had multiple records in the same start year
+-- The problem wasn't clear on this edge case but DENSE_RANK() pulls in all instances of the first year if we rank by year.
+
+WITH ranked_sales_year AS (
+SELECT
+sale_id
+, product_id
+, year
+, quantity
+, price
+, DENSE_RANK() OVER (PARTITION BY product_id ORDER BY year) AS rank_year
+FROM Sales
+)
+
+SELECT
+product_id
+, year AS first_year
+, quantity
+, price
+FROM ranked_sales_year
+WHERE rank_year = 1
+

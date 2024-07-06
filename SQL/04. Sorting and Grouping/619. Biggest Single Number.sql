@@ -82,3 +82,21 @@ FROM
     HAVING (COUNT(num)) = 1) 
 AS dev_num
 
+
+
+# Using CTE:
+WITH agg_nums AS (
+SELECT
+num
+, COUNT(num) AS num_counts
+FROM MyNumbers
+GROUP BY num
+ORDER BY num DESC
+)
+
+SELECT
+MAX(num) AS num
+FROM agg_nums
+WHERE num_counts = 1
+
+
