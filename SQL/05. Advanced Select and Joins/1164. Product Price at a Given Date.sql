@@ -47,6 +47,10 @@ Output:
 
 
 # Solution:
+# Explanation from comments:
+# Just find the last occurrence of an id before 2019-08-16 (inclusive) and set that price. 
+# Any distinct id that doesn't appear before has a price of 10.
+
 -- # Sub-query
 SELECT
 DISTINCT product_id
@@ -80,3 +84,33 @@ new_price
 from Products
 where change_date <= "2019-08-16" ) a
 where rk=1
+
+
+
+# CTE and Window function + Union:
+
+WITH ranked_data AS(
+SELECT
+product_id
+, new_price
+, change_date
+, DENSE_RANK() OVER (PARTITION BY product_id ORDER BY change_date) AS ranked_dt
+FROM Products
+)
+SELECT
+product_id
+, new_price AS price
+FROM ranked_data
+WHERE (product_id, ranked_dt) IN (SELECT product_id, MAX(ranked_dt) FROM ranked_data WHERE change_date <= '2019-08-16' GROUP BY product_id)
+GROUP BY product_id
+
+UNION
+
+SELECT
+DISTINCT product_id
+, 10 AS price
+FROM Products
+GROUP BY product_id
+HAVING MIN(change_date) > '2019-08-16'
+
+
