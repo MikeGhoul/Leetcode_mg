@@ -29,21 +29,22 @@ On 07/11/2024, there are only two measurements available. The sum of the odd-num
 
 # Solution:
 
-WITH ranked_table AS(
+WITH row_nums_meas AS (
 SELECT
-DATE(measurement_time) AS measurement_day
+measurement_id
 , measurement_value
-, ROW_NUMBER() OVER(ORDER BY DATE(measurement_time)) AS ranked_row
-FROM measurements
+, measurement_time
+, ROW_NUMBER() OVER (PARTITION BY DATE(measurement_time) ORDER BY measurement_time) AS row_num 
+FROM measurements 
 )
 
 SELECT
-measurement_day
-, SUM(CASE WHEN ranked_row % 2 <>0 THEN measurement_value END) AS odd_sum
-, SUM(CASE WHEN ranked_row % 2 = 0 THEN measurement_value END) AS even_sum
-FROM ranked_table
-GROUP BY measurement_day_NUMBER() OVER(ORDER BY measurement_time), 2 == 0) THEN measurement_value) END AS even_sum
-FROM measurements
+DATE(measurement_time) AS measurement_day
+, SUM(CASE WHEN row_num % 2 != 0 THEN measurement_value ELSE 0 END) AS odd_sum
+, SUM(CASE WHEN row_num % 2 = 0 THEN measurement_value ELSE 0 END) AS even_sum
+FROM row_nums_meas
+GROUP BY 1
+ORDER BY 1
 
 
 

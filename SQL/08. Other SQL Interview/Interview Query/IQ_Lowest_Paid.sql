@@ -64,3 +64,24 @@ HAVING completed_projects >= 2
 ORDER BY salary 
 LIMIT 3
 
+# Using a CTE:
+WITH employee_projects_count AS (
+  SELECT
+    e.id AS employee_id
+    , e.salary
+    , COUNT(DISTINCT p.id) AS completed_projects
+  FROM employees e
+  JOIN employee_projects ep ON e.id = ep.employee_id
+  JOIN projects p ON ep.project_id = p.id 
+  WHERE p.end_date IS NOT NULL
+  GROUP BY e.id, e.salary
+  HAVING COUNT(DISTINCT p.id) >= 2
+)
+SELECT
+  employee_id,
+  salary,
+  completed_projects
+FROM employee_projects_count
+ORDER BY salary
+LIMIT 3
+

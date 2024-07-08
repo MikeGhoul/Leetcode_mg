@@ -58,5 +58,20 @@ GROUP BY 1, 2
 # In order to remove the 0's just incorporate a HAVING clause at the end to filter out 0.
 
 
+# Use Inner Join instead of Left Join to avoid any nulls and therefore 0s:
+SELECT
+category_name
+, MONTH(search_date) AS month
+, COUNT(search_id) AS total_searches
+FROM searches 
+INNER JOIN categories
+ON searches.category_id = categories.category_id
+WHERE YEAR(search_date) = 2024
+GROUP BY 1, 2
+
+
+
+
+
 
 
