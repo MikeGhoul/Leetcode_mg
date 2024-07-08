@@ -55,3 +55,36 @@ SELECT
 place_category AS off_topic_places
 WHERE LOWER(content_tag) = "off-topic"
 AND content_counts = (SELECT MAX(content_counts) FROM place_content_groups)
+
+
+
+# Solution 2 (more logical imo):
+
+-- Group the data on place_category and content tags and get a count per grouping
+WITH ordered_counts AS(
+SELECT
+place_category
+, content_tag
+, COUNT(content_id) AS count_per_tag
+FROM place_info
+JOIN maps_ugc_review
+ON place_info.place_id = maps_ugc_review.place_id
+GROUP BY 1, 2
+), 
+
+-- Rank the grouped data based on content tag, order by most counts as highest, then category name
+ranked_data AS(
+SELECT
+place_category
+, content_tag
+, count_per_tag
+, DENSE_RANK() OVER (PARTITION BY content_tag ORDER BY count_per_tag DESC, place_category) AS ranked_counts
+FROM ordered_counts
+)
+
+-- Pull instances where the content tag matches what we want (e.g. off-topic) and the rank is 1 (highest count)
+SELECT 
+place_category
+FROM ranked_data
+WHERE LOWER(content_tag) = 'off-topic'
+AND ranked_counts = 1

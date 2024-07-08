@@ -12,16 +12,17 @@ Example:
 For the given input:
 
 student_id	student_name	exam_id	score
-100	Anna	1	71
-100	Anna	2	72
-100	Anna	3	73
-100	Anna	4	74
-101	Brian	1	65
+100			Anna			1		71
+100			Anna			2		72
+100			Anna			3		73
+100			Anna			4		74
+101			Brian			1		65
 the expected output should be:
 
 student_name	exam_1	exam_2	exam_3	exam_4
-Anna	71	72	73	74
-Brian	65	NULL	NULL	NULL
+Anna			71		72		73		74
+Brian			65		NULL	NULL	NULL
+
 Input:
 
 exam_scores table
