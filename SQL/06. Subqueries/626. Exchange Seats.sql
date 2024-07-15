@@ -66,3 +66,41 @@ id
 FROM Seat
 
 
+# This is what is happening in the intermediary steps:
+
++----+---------+-------------+-------------+
+| id | student | prev_student| next_student|
++----+---------+-------------+-------------+
+| 1  | Abbot   | NULL        | Doris       |
+| 2  | Doris   | Abbot       | Emerson     |
+| 3  | Emerson | Doris       | Green       |
+| 4  | Green   | Emerson     | Jeames      |
+| 5  | Jeames  | Green       | NULL        |
++----+---------+-------------+-------------+
+
+
+id = 1 (odd):
+
+Takes LEAD(student) which is "Doris"
+
+
+id = 2 (even):
+
+Takes LAG(student) which is "Abbot"
+
+
+id = 3 (odd):
+
+Takes LEAD(student) which is "Green"
+
+
+id = 4 (even):
+
+Takes LAG(student) which is "Emerson"
+
+
+id = 5 (odd):
+
+LEAD(student) is NULL, so it takes the original student "Jeames"
+
+
