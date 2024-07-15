@@ -88,3 +88,30 @@ WITH agg_date AS (
 	FROM agg_sliding_7
 	WHERE row_num >= 7
 
+
+
+# Can also do the running avg for past 7 days in second cte:
+
+WITH amt_per_day AS (
+SELECT
+visited_on
+, SUM(amount) AS amount_per_day
+FROM Customer
+GROUP BY 1
+)
+, running_tot AS (
+SELECT
+visited_on
+, SUM(amount_per_day) OVER (ORDER BY visited_on rows between 6 preceding and current row) AS running_amt
+, AVG(amount_per_day) OVER (ORDER BY visited_on rows between 6 preceding and current row) AS running_amt_avg
+, ROW_NUMBER() OVER (ORDER BY visited_on) AS row_num
+FROM amt_per_day
+)
+
+SELECT 
+visited_on
+, running_amt AS amount
+, ROUND(running_amt_avg, 2) AS average_amount
+FROM running_tot
+WHERE row_num >= 7	
+
