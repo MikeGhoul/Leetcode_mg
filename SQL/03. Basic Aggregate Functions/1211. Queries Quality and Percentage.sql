@@ -78,7 +78,7 @@ FROM Queries
 WHERE query_name IS NOT NULL
 GROUP BY 1
 
--- Approach manualy calculating the average:
+-- Approach manually calculating the average:
 
 SELECT
 query_name
